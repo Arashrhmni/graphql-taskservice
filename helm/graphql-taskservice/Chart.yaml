@@ -1,0 +1,13 @@
+apiVersion: v2
+name: graphql-taskservice
+description: Cloud-native GraphQL microservice for task management
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - graphql
+  - microservice
+  - fastapi
+  - python
+maintainers:
+  - name: Arash Rahmani

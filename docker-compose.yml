@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  # ── GraphQL Task Service ────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: graphql-taskservice:local
+    container_name: graphql-taskservice
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── Hot-reload dev server (mount source) ───────────────────────────────────
+  api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder          # includes pip + source
+    image: graphql-taskservice:dev
+    container_name: graphql-taskservice-dev
+    command: >
+      uvicorn app.main:app
+        --host 0.0.0.0
+        --port 8000
+        --reload
+    volumes:
+      - .:/build                # live-reload on code changes
+    working_dir: /build
+    ports:
+      - "8001:8000"
+    profiles:
+      - dev                     # only starts with: docker compose --profile dev up
+
+  # ── Test runner ────────────────────────────────────────────────────────────
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    image: graphql-taskservice:test
+    container_name: graphql-taskservice-tests
+    command: >
+      sh -c "pip install --no-cache-dir -r /build/requirements.txt &&
+             pytest /build/tests -v --tb=short"
+    volumes:
+      - .:/build
+    working_dir: /build
+    profiles:
+      - test                    # docker compose --profile test up --abort-on-container-exit
