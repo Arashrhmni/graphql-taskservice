@@ -249,9 +249,3 @@ Triggered on push to `main`/`develop` and all pull requests.
 GET /health
 → {"status": "ok", "service": "graphql-taskservice"}
 ```
-
----
-
-## Resume Bullet
-
-> **Developed and containerised a GraphQL microservice** (FastAPI + Strawberry) with full CRUD operations, 40+ pytest unit and integration tests, a multi-stage Dockerfile, docker-compose local dev workflow, and Kubernetes deployment manifests (Deployment, Service, HPA) with a Helm chart for parameterised releases.
