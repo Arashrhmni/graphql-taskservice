@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -45,8 +45,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build image (no push on PRs)
-        uses: docker/build-push-action@v5
+      - name: Build image
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: false
@@ -57,6 +57,6 @@ jobs:
       - name: Smoke test container
         run: |
           docker run -d --name svc -p 8000:8000 graphql-taskservice:${{ github.sha }}
-          sleep 5
-          curl --fail http://localhost:8000/health
+          sleep 8
+          curl --fail --retry 3 --retry-delay 2 http://localhost:8000/health
           docker stop svc
